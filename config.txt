@@ -1,1 +1,2 @@
 [INCLUDE] png jpeg jpg mov mp4 heic
+[SLICESIZE] 10000

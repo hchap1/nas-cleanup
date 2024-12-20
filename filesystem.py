@@ -1,17 +1,23 @@
 from os import path, listdir, stat
 
 include = set()
+slicesize = 10000
 
-default_conf = "[INCLUDE] png jpeg jpg mov mp4 heic"
+default_conf = [
+    "[INCLUDE] png jpeg jpg mov mp4 heic",
+    "[SLICESIZE] 10000"
+]
 try:
     with open("config.txt", "r") as config: conf_lines = config.readlines()
 except:
-    conf_lines = [default_conf,]
+    conf_lines = default_conf
 
 for line in conf_lines:
     if line[0:9] == "[INCLUDE]":
         for item in line.strip("\n").split(" ")[1:]:
             include.add("." + item)
+    if line[0:11] == "[SLICESIZE]":
+        slicesize = int(line.strip("\n").split(" ")[1])
 
 class DebugTracker:
     def __init__(self):
@@ -54,21 +60,16 @@ class Checksum:
 def recursively_walk_directories(root: Directory, dump, debug):
     debug.directories += 1
     for item in listdir(root.path):
-        print("Checking {item}")
         item_path = path.join(root.path, item)
         if path.isdir(item_path): recursively_walk_directories(Directory(item_path), dump, debug)
         elif path.isfile(item_path):
-            print("STARTING TO FIND SIZE")
             size = stat(item_path).st_size
-            print("FOUND SIZE {size}")
             if size < 1: continue
             filename, extension = path.splitext(item)
             if extension.lower() in include:
                 debug.files += 1
                 debug.totalbytes += size
-                print("CONSTRUCTING FILE OBJ")
                 root.files.append(File(path.abspath(item_path).strip(item), filename, extension))
-                print("FILE OBJ APPENDED")
                 debug.mostrecent = item_path
                 debug.log()
     dump.append(root)
@@ -79,9 +80,9 @@ def middle_10_percent(data):
 
     n = len(data)
     start = max(0, n // 2 - n // 20)
-    if n / 2 - start > 500: start = int(n / 2 - 500)
+    if n / 2 - start > slicesize / 2: start = int(n / 2 - slicesize / 2)
     end = min(n, n // 2 + n // 20)
-    if end - n / 2 > 500: end = int(n / 2 + 500)
+    if end - n / 2 > slicesize / 2: end = int(n / 2 + slicesize / 2)
     middle_slice = data[start:end]
     return middle_slice
 
