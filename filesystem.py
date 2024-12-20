@@ -79,6 +79,7 @@ def recursively_walk_directories(root: Directory, dump, debug):
 
 def middle_10_percent(data):
     if not data or len(data) <= 10:
+        print("Invalid data found")
         return data
 
     n = len(data)
@@ -86,8 +87,8 @@ def middle_10_percent(data):
     if n / 2 - start > slicesize / 2: start = int(n / 2 - slicesize / 2)
     end = min(n, n // 2 + n // 20)
     if end - n / 2 > slicesize / 2: end = int(n / 2 + slicesize / 2)
-    middle_slice = data[start:end]
-    return middle_slice
+    print(f"Computed sizes: {start}:{end}")
+    return data[start:end]
 
 if __name__ == "__main__":
     roots = []
