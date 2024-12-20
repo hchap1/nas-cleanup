@@ -12,17 +12,16 @@ for line in conf_lines:
     if line[0:9] == "[INCLUDE]":
         for item in line.strip("\n").split(" ")[1:]:
             include.add("." + item)
-            
-print(include)
 
 class DebugTracker:
     def __init__(self):
         self.files = 0
         self.directories = 0
         self.totalbytes = 0
+        self.mostrecent = "-"
 
     def log(self):
-        print(f"\r[INFORMATION] {self.files} files scanned totalling {round(self.totalbytes / (1024 * 1024), 2) * 8}MB over {self.directories} directories.", end="")
+        print(f"\r[INFORMATION] {self.files} files scanned totalling {round(self.totalbytes / (1024 * 1024), 2) * 8}MB over {self.directories} directories. Current: {self.mostrecent}", end="")
 
 class Directory:
     def __init__(self, path: str):
@@ -59,12 +58,13 @@ def recursively_walk_directories(root: Directory, dump, debug):
         if path.isdir(item_path): recursively_walk_directories(Directory(item_path), dump, debug)
         elif path.isfile(item_path):
             size = stat(item_path).st_size
-            if size > 1:
+            if size < 1: continue
+            filename, extension = path.splitext(item)
+            if extension in include:
                 debug.files += 1
                 debug.totalbytes += size
-                filename, extension = path.splitext(item)
-                if extension in include:
-                    root.files.append(File(path.abspath(item_path).strip(item), filename, extension))
+                root.files.append(File(path.abspath(item_path).strip(item), filename, extension))
+                debug.mostrecent = item_path
                 debug.log()
     dump.append(root)
 
@@ -76,7 +76,7 @@ def middle_10_percent(data):
     start = max(0, n // 2 - n // 20)
     end = min(n, n // 2 + n // 20)
     middle_slice = data[start:end]
-    return middle_slice[:10000]
+    return middle_slice[:1000]
 
 if __name__ == "__main__":
     roots = []
