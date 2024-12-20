@@ -47,17 +47,13 @@ class File:
 class Checksum:
     def __init__(self, file: File):
         self.sum = 0
-        print(f"OPENING {file.absolute}")
         with open(path.join(file.path, file.filename + file.extension), "rb") as data:
             if file.size > 100:
                 data.seek(int(file.size / 2 - file.size / 20))
-            print("READ, PARSING SLICE")
             binary = data.read(min(int(file.size / 10), slicesize))
-            print("SLICE PARSING DONE")
         for num in binary:
             self.sum += num
         if len(binary) == 0:
-            print(f"[ERROR] Zero-byte file at {file.absolute}")
             file.ignore = True
             return
         self.average = int(self.sum / len(binary))
@@ -89,7 +85,6 @@ def middle_10_percent(data):
     if n / 2 - start > slicesize / 2: start = int(n / 2 - slicesize / 2)
     end = min(n, n // 2 + n // 20)
     if end - n / 2 > slicesize / 2: end = int(n / 2 + slicesize / 2)
-    print(f"Computed sizes: {start}:{end}")
     return data[start:end]
 
 if __name__ == "__main__":
