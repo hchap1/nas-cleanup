@@ -79,9 +79,11 @@ def middle_10_percent(data):
 
     n = len(data)
     start = max(0, n // 2 - n // 20)
+    if n / 2 - start > 500: start = n / 2 - 500
     end = min(n, n // 2 + n // 20)
+    if end - n / 2 > 500: end = n / 2 + 500
     middle_slice = data[start:end]
-    return middle_slice[:1000]
+    return middle_slice
 
 if __name__ == "__main__":
     roots = []
