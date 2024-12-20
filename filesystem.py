@@ -54,16 +54,21 @@ class Checksum:
 def recursively_walk_directories(root: Directory, dump, debug):
     debug.directories += 1
     for item in listdir(root.path):
+        print("Checking {item}")
         item_path = path.join(root.path, item)
         if path.isdir(item_path): recursively_walk_directories(Directory(item_path), dump, debug)
         elif path.isfile(item_path):
+            print("STARTING TO FIND SIZE")
             size = stat(item_path).st_size
+            print("FOUND SIZE {size}")
             if size < 1: continue
             filename, extension = path.splitext(item)
             if extension.lower() in include:
                 debug.files += 1
                 debug.totalbytes += size
+                print("CONSTRUCTING FILE OBJ")
                 root.files.append(File(path.abspath(item_path).strip(item), filename, extension))
+                print("FILE OBJ APPENDED")
                 debug.mostrecent = item_path
                 debug.log()
     dump.append(root)
