@@ -60,8 +60,7 @@ def recursively_walk_directories(root: Directory, dump, debug):
             size = stat(item_path).st_size
             if size < 1: continue
             filename, extension = path.splitext(item)
-            extension = extension.lower()
-            if extension in include:
+            if extension.lower() in include:
                 debug.files += 1
                 debug.totalbytes += size
                 root.files.append(File(path.abspath(item_path).strip(item), filename, extension))
