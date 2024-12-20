@@ -41,7 +41,7 @@ class Checksum:
     def __init__(self, file: File):
         self.sum = 0
         with open(path.join(file.path, file.filename + file.extension), "rb") as data:
-            binary = list(data.read())
+            binary = middle_10_percent(list(data.read()))
         for num in binary:
             self.sum += num
         if len(binary) == 0:
@@ -79,9 +79,9 @@ def middle_10_percent(data):
 
     n = len(data)
     start = max(0, n // 2 - n // 20)
-    if n / 2 - start > 500: start = n / 2 - 500
+    if n / 2 - start > 500: start = int(n / 2 - 500)
     end = min(n, n // 2 + n // 20)
-    if end - n / 2 > 500: end = n / 2 + 500
+    if end - n / 2 > 500: end = int(n / 2 + 500)
     middle_slice = data[start:end]
     return middle_slice
 
