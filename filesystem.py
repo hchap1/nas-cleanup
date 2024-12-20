@@ -1,5 +1,20 @@
 from os import path, listdir, stat
 
+include = set()
+
+default_conf = "[INCLUDE] png jpeg jpg mov mp4 heic"
+try:
+    with open("config.txt", "r") as config: conf_lines = config.readlines()
+except:
+    conf_lines = [default_conf,]
+
+for line in conf_lines:
+    if line[0:9] == "[INCLUDE]":
+        for item in line.strip("\n").split(" ")[1:]:
+            include.add("." + item)
+            
+print(include)
+
 class DebugTracker:
     def __init__(self):
         self.files = 0
@@ -7,7 +22,7 @@ class DebugTracker:
         self.totalbytes = 0
 
     def log(self):
-        print(f"\r[INFORMATION] {self.files} files scanned totalling {self.totalbytes} over {self.directories} directories.", end="")
+        print(f"\r[INFORMATION] {self.files} files scanned totalling {round(self.totalbytes / (1024 * 1024), 2) * 8}MB over {self.directories} directories.", end="")
 
 class Directory:
     def __init__(self, path: str):
@@ -35,7 +50,7 @@ class Checksum:
             file.ignore = True
             return
         self.average = int(self.sum / len(binary))
-        self.value = int((self.sum + self.average) / 100)
+        self.value = int((self.sum + self.average))
 
 def recursively_walk_directories(root: Directory, dump, debug):
     debug.directories += 1
@@ -48,7 +63,8 @@ def recursively_walk_directories(root: Directory, dump, debug):
                 debug.files += 1
                 debug.totalbytes += size
                 filename, extension = path.splitext(item)
-                root.files.append(File(path.abspath(item_path).strip(item), filename, extension))
+                if extension in include:
+                    root.files.append(File(path.abspath(item_path).strip(item), filename, extension))
                 debug.log()
     dump.append(root)
 
@@ -65,7 +81,7 @@ def middle_10_percent(data):
 if __name__ == "__main__":
     roots = []
     while True:
-        root = input("Enter Directory [ENTER] to cancel.\n -> ")
+        root = input("Enter Directory [ENTER] to cancel -> ")
         if root == "\n" or root == "": break
         if path.isdir(root): roots.append(Directory(root))
         else: print("[ERROR] Invalid directory.")
