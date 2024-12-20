@@ -35,11 +35,12 @@ class Directory:
         self.files = []
 
 class File:
-    def __init__(self, abspath: str, filename: str, extension: str):
+    def __init__(self, abspath: str, filename: str, extension: str, size):
         self.ignore = False
         self.path = abspath
         self.filename = filename
         self.extension = extension
+        self.size = size
         self.absolute = path.join(self.path, self.filename + self.extension)
         self.checksum = Checksum(self)
 
@@ -48,8 +49,10 @@ class Checksum:
         self.sum = 0
         print(f"OPENING {file.absolute}")
         with open(path.join(file.path, file.filename + file.extension), "rb") as data:
+            if file.size > 100:
+                data.seek(int(file.size / 2 - file.size / 20))
             print("READ, PARSING SLICE")
-            binary = middle_10_percent(list(data.read()))
+            binary = data.read(int(file.size / 10))
             print("SLICE PARSING DONE")
         for num in binary:
             self.sum += num
@@ -72,14 +75,13 @@ def recursively_walk_directories(root: Directory, dump, debug):
             if extension.lower() in include:
                 debug.files += 1
                 debug.totalbytes += size
-                root.files.append(File(path.abspath(item_path).strip(item), filename, extension))
+                root.files.append(File(path.abspath(item_path).strip(item), filename, extension, size))
                 debug.mostrecent = item_path
                 debug.log()
     dump.append(root)
 
 def middle_10_percent(data):
     if not data or len(data) <= 10:
-        print("Invalid data found")
         return data
 
     n = len(data)
