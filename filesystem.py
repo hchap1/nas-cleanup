@@ -52,7 +52,7 @@ class Checksum:
             if file.size > 100:
                 data.seek(int(file.size / 2 - file.size / 20))
             print("READ, PARSING SLICE")
-            binary = data.read(int(file.size / 10))
+            binary = data.read(min(int(file.size / 10), slicesize))
             print("SLICE PARSING DONE")
         for num in binary:
             self.sum += num
