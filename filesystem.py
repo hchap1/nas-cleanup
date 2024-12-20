@@ -46,8 +46,11 @@ class File:
 class Checksum:
     def __init__(self, file: File):
         self.sum = 0
+        print(f"OPENING {file.absolute}")
         with open(path.join(file.path, file.filename + file.extension), "rb") as data:
+            print("READ, PARSING SLICE")
             binary = middle_10_percent(list(data.read()))
+            print("SLICE PARSING DONE")
         for num in binary:
             self.sum += num
         if len(binary) == 0:
